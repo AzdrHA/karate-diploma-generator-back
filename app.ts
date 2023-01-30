@@ -1,99 +1,60 @@
-import PDFDocument from 'pdfkit'
-import fs from 'fs'
+import { type SKCVoreppeDiploma } from "./types/SKCVoreppeDiploma";
+import { generateDiplomas } from "./utils/GenerateDiplomas";
 
-/**
- * Create a new diploma
- * @param {string} clubName
- * @param {string} awardedTo
- * @param {string} city
- * @param {string} date
- * @returns {void}
- */
-const newDiploma = (clubName: string, awardedTo: string, city: string, date: Date, type: string): void => {
-  const doc = new PDFDocument({ size: 'A1', layout: 'landscape' })
-  doc.pipe(fs.createWriteStream('output.pdf'))
-  const imageWidth = 2339
-  const imageHeight = 1654
-  doc.image(`./diplomas/${type}.png`, doc.page.width / 2 - imageWidth / 2, doc.page.height / 2 - imageHeight / 2, { scale: 1, align: 'center', valign: 'center', width: imageWidth, height: imageHeight })
+const defaultSKCVoreppeMember: Pick<SKCVoreppeDiploma, "clubName" | "city"> = {
+  clubName: "SKC Voreppe",
+  city: "Voreppe",
+};
 
-  doc
-    .fontSize(50)
-    .font('fonts/BebasNeueRegular.ttf')
-
-  doc.text(clubName, doc.page.width / 3 - 30, doc.page.height / 2 - 30, {
-    align: 'left'
-  })
-
-  doc.text(awardedTo, doc.page.width / 3 - 30, doc.page.height / 2 + 65, {
-    align: 'left'
-  })
-
-  doc.text(city, doc.page.width / 3 - 30, doc.page.height / 1.5 - 28, {
-    align: 'left'
-  })
-
-  doc.text(date.toDateString(), doc.page.width / 1.7 + 8, doc.page.height / 1.5 - 28, {
-    align: 'left'
-  })
-
-  doc.end()
-}
-
-const belts = [
+const diplomas: SKCVoreppeDiploma[] = [
   {
-    name: 'white-yellow',
-    entry: ['blanche-jaune']
+    ...defaultSKCVoreppeMember,
+    firstName: "Samuel",
+    lastName: "MARTINO",
+    date: new Date(),
+    type: "blanche-jaune",
+    group: "Groupe 1",
   },
   {
-    name: 'yellow',
-    entry: ['jaune']
+    ...defaultSKCVoreppeMember,
+    firstName: "Nathan",
+    lastName: "DI BARTOLOMEO",
+    date: new Date(),
+    type: "blanche-jaune",
+    group: "Groupe 1",
   },
   {
-    name: 'yellow-orange',
-    entry: ['jaune-orange']
+    ...defaultSKCVoreppeMember,
+    firstName: "Karell",
+    lastName: "LANGUILLE",
+    date: new Date(),
+    type: "jaune",
+    group: "Groupe 1",
   },
   {
-    name: 'orange',
-    entry: ['orange']
+    ...defaultSKCVoreppeMember,
+    firstName: "Kiara",
+    lastName: "DIONGUE",
+    date: new Date(),
+    type: "jaune",
+    group: "Groupe 1",
   },
   {
-    name: 'orange-green',
-    entry: ['orange-vert']
+    ...defaultSKCVoreppeMember,
+    firstName: "Aissatou",
+    lastName: "DIONGUE",
+    date: new Date(),
+    type: "jaune",
+    group: "Groupe 1",
   },
-  {
-    name: 'green',
-    entry: ['vert']
-  },
-  {
-    name: 'green-blue',
-    entry: ['vert-bleu']
-  },
-  {
-    name: 'blue',
-    entry: ['bleu']
-  },
-  {
-    name: 'blue-brown',
-    entry: ['bleu-marron']
-  },
-  {
-    name: 'brown',
-    entry: ['marron']
-  }
-]
+];
 
-const entry = 'orange'
+const sortedDiplomas = diplomas.sort((a, b) => {
+  if (a.group < b.group) return -1;
+  if (a.group > b.group) return 1;
+  if (a.type < b.type) return -1;
+  if (a.type > b.type) return 1;
+  return 0;
+});
 
-const testBlabla = (colors: string[]) => {
-  return colors.map((color) => {
-    const splitColor = color.split('-')
-    const test = splitColor.map((word) => word.charAt(0)).join('')
-    const t2 = splitColor.map((word) => word.charAt(0).toLowerCase() + word.slice(1)).join('')
-    return [test, t2, color]
-  })
-}
-
-const find = belts.find((belt) => testBlabla(belt.entry)[0].includes(entry.toLowerCase()))
-console.log(find)
-
-if (find != null) newDiploma('SKC Voreppe', 'Baptiste BRAND', 'Voreppe', new Date(), find.name)
+generateDiplomas(diplomas);
