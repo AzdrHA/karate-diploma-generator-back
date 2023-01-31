@@ -1,13 +1,13 @@
-import generateVoreppeDiplomas from './script/voreppe'
+import VoreppeGenerateDiploma from './script/VoreppeGenerateDiploma'
+import { ISKCVoreppeGroup } from './types/ISKCVoreppeGroup'
 
-switch (process.argv[2]) {
-  case 'voreppe':
-    generateVoreppeDiplomas()
-    break
-  case 'generate-diplomas-voreppe':
-    console.log('generate-diplomas-voreppe')
-    break
-  default:
-    console.log('No command found')
-    break
-}
+const voreppeGenerateDiploma = new VoreppeGenerateDiploma()
+voreppeGenerateDiploma.generateDiplomas([
+  {
+    ...voreppeGenerateDiploma.baseGroupMember(ISKCVoreppeGroup.GROUP_2),
+    firstName: 'Jean',
+    lastName: 'Philipe',
+    date: new Date(),
+    type: 'blanche-jaune'
+  }
+])
