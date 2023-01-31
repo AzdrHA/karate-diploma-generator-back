@@ -1,4 +1,4 @@
-export enum SKCVoreppeBand {
+export enum ISKCVoreppeBand {
   BAND_1 = 'Groupe 1',
   BAND_2 = 'Groupe 2',
   BAND_3 = 'Groupe 3',

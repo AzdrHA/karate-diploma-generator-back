@@ -1,8 +1,7 @@
-export abstract class UtilsStr {
-  public static slugify(str: string): string {
-    return str
-      .toLowerCase()
-      .replace(/ /g, '-')
-      .replace(/[^\w-]+/g, '')
-  }
-}
+const slugify = (str: string): string =>
+  str
+    .toLowerCase()
+    .replace(/ /g, '-')
+    .replace(/[^\w-]+/g, '-')
+
+export { slugify }

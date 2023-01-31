@@ -1,18 +1,21 @@
-import { type Diploma } from '../types/Diploma'
+import { type IDiploma } from '../types/IDiploma'
 import PDFDocument from 'pdfkit'
 import fs from 'fs'
 import util from 'util'
-import { belts } from '../belts'
 import sizeOf from 'image-size'
-import { UtilsStr } from './UtilsStr'
+import { slugify } from './UtilsStr'
+import { parse } from 'yaml'
+import { type IBelt } from '../types/IBelt'
+
+const belts: IBelt[] = parse(fs.readFileSync('./belts.yml', 'utf8'))
 
 /**
- * @param {Diploma[]} diplomas
+ * @param {IDiploma[]} diplomas
  * @param {string|null} outputName
  * @return {void}
  */
 export const generateDiplomas = (
-  diplomas: Diploma[],
+  diplomas: IDiploma[],
   outputName: string | null = null
 ): void => {
   const doc = new PDFDocument({ size: 'A1', layout: 'landscape' })
@@ -25,7 +28,7 @@ export const generateDiplomas = (
           util.format(
             '%s-Diplomes-Karate-%s-%s',
             diplomas.length,
-            UtilsStr.slugify(currentDate.toLocaleDateString('fr')),
+            slugify(currentDate.toLocaleDateString('fr')),
             currentDate.getTime()
           )
       )
