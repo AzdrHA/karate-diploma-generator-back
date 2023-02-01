@@ -6,14 +6,21 @@ import sizeOf from 'image-size'
 import { parse } from 'yaml'
 import { type IBelt } from '../types/IBelt'
 import { slugify } from '../utils/UtilsStr'
+import { type IGenerateDiplomaOptions } from '../types/IGenerateDiplomaOptions'
 
 export default abstract class BaseGenerateDiploma {
   public readonly CLUB_NAME: string
   public readonly CLUB_CITY: string
 
-  public constructor(clubName: string = '', clubCity: string = '') {
-    this.CLUB_NAME = clubName
-    this.CLUB_CITY = clubCity
+  public readonly options: IGenerateDiplomaOptions
+
+  public readonly madeAt: Date
+
+  public constructor(options: IGenerateDiplomaOptions) {
+    this.CLUB_NAME = options.clubName ?? ''
+    this.CLUB_CITY = options.clubCity ?? ''
+    this.options = options
+    this.madeAt = this.options.date ?? new Date()
   }
 
   public get baseMember(): Pick<IDiploma, 'clubName' | 'city'> {
@@ -32,7 +39,6 @@ export default abstract class BaseGenerateDiploma {
     outputName: string | null = null
   ): void {
     const doc = new PDFDocument({ size: 'A1', layout: 'landscape' })
-    const currentDate = new Date()
     doc.pipe(
       fs.createWriteStream(
         util.format(
@@ -42,8 +48,8 @@ export default abstract class BaseGenerateDiploma {
               '%s-%s-Diplomes-Karate-%s-%s',
               diplomas.length,
               slugify(this.CLUB_NAME),
-              slugify(currentDate.toLocaleDateString('fr')),
-              currentDate.getTime()
+              slugify(this.madeAt.toLocaleDateString('fr')),
+              this.madeAt.getTime()
             )
         )
       )
@@ -106,7 +112,7 @@ export default abstract class BaseGenerateDiploma {
 
       // Write the date
       doc.text(
-        diploma.date.toLocaleDateString('fr'),
+        (diploma.date ?? this.madeAt).toLocaleDateString('fr'),
         doc.page.width / 1.7 + 8,
         doc.page.height / 1.5 - 28,
         {

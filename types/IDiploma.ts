@@ -3,7 +3,7 @@ export interface IDiploma {
   firstName: string
   lastName: string
   city: string
-  date: Date
+  date?: Date
   type:
     | 'blanche-jaune'
     | 'jaune'

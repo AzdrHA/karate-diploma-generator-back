@@ -33,7 +33,7 @@ export default class VoreppeGenerateDiploma extends BaseGenerateDiploma {
           '%s-Voreppe-Diplomes-Karate-%s-%s',
           diplomasByGroup.length,
           slugify(group),
-          slugify(new Date().toLocaleDateString('fr'))
+          slugify(this.makeAt.toLocaleDateString('fr'))
         )
       )
     })
