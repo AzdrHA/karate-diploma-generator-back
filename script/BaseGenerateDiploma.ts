@@ -8,10 +8,15 @@ import { type IBelt } from '../types/IBelt'
 import { slugify } from '../utils/UtilsStr'
 
 export default abstract class BaseGenerateDiploma {
-  public abstract readonly CLUB_NAME: string
-  public abstract readonly CLUB_CITY: string
+  public readonly CLUB_NAME: string
+  public readonly CLUB_CITY: string
 
-  get baseMember(): Pick<IDiploma, 'clubName' | 'city'> {
+  public constructor(clubName: string = '', clubCity: string = '') {
+    this.CLUB_NAME = clubName
+    this.CLUB_CITY = clubCity
+  }
+
+  public get baseMember(): Pick<IDiploma, 'clubName' | 'city'> {
     return {
       clubName: this.CLUB_NAME,
       city: this.CLUB_CITY
@@ -24,7 +29,7 @@ export default abstract class BaseGenerateDiploma {
 
   public generateDiplomas(
     diplomas: IDiploma[],
-    outputName: string | null
+    outputName: string | null = null
   ): void {
     const doc = new PDFDocument({ size: 'A1', layout: 'landscape' })
     const currentDate = new Date()
@@ -34,8 +39,9 @@ export default abstract class BaseGenerateDiploma {
           './output/%s.pdf',
           outputName ??
             util.format(
-              '%s-Diplomes-Karate-%s-%s',
+              '%s-%s-Diplomes-Karate-%s-%s',
               diplomas.length,
+              slugify(this.CLUB_NAME),
               slugify(currentDate.toLocaleDateString('fr')),
               currentDate.getTime()
             )
