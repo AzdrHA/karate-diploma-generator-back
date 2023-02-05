@@ -7,6 +7,17 @@ import { parse } from 'yaml'
 import { type IBelt } from '../types/IBelt'
 import { slugify } from '../utils/UtilsStr'
 import { type IGenerateDiplomaOptions } from '../types/IGenerateDiplomaOptions'
+import xlsx, { utils } from 'xlsx'
+import axios from 'axios'
+
+export interface TDiplomaGoogleSheet {
+  __EMPTY: number
+  Nom: string
+  Prénom: string
+  Ceinture: string
+}
+
+export type AAAA = keyof TDiplomaGoogleSheet
 
 export default abstract class BaseGenerateDiploma {
   public readonly CLUB_NAME: string
@@ -124,5 +135,50 @@ export default abstract class BaseGenerateDiploma {
     })
 
     doc.end()
+  }
+
+  public async fromExcel(type: 'url' | 'file', file: string): Promise<void> {
+    const res = await axios.get(
+      'https://docs.google.com/spreadsheets/d/1HzTR5o8jnzensFqWDI9GsugC0MrUvjAdrylAkBaE3x4/edit#gid=0',
+      { responseType: 'arraybuffer' }
+    )
+    const workbook = xlsx.read(res.data)
+    const json: TDiplomaGoogleSheet[] = utils.sheet_to_json(
+      workbook.Sheets[workbook.SheetNames[0]]
+    )
+
+    console.log(this.parseGoogleSheet(json))
+  }
+
+  private parseGoogleSheet(data: TDiplomaGoogleSheet[]): TDiplomaGoogleSheet[] {
+    return data.reduce((acc: TDiplomaGoogleSheet[], element, rI) => {
+      if (rI !== 0) {
+        if (Object.keys(data[0]).length === Object.keys(element).length) {
+          Object.keys(element).forEach((key: string) => {
+            if (rI !== 0) {
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-expect-error
+              element[data[0][key]] = element[key]
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-expect-error
+              // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+              delete element[key]
+            }
+          })
+          acc.push(this.test(element['Prénom'], element.Nom))
+        }
+      }
+
+      return acc
+    }, [])
+  }
+
+  private readonly test = (firstName: string, lastName: string): any => {
+    return {
+      ...this.baseMember,
+      firstName,
+      lastName,
+      type: 'bleu'
+    }
   }
 }
