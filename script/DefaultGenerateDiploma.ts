@@ -1,12 +1,13 @@
 import BaseGenerateDiploma from './BaseGenerateDiploma'
+import { type IGenerateDiplomaOptions } from '../types/IGenerateDiplomaOptions'
 
 export default class DefaultGenerateDiploma extends BaseGenerateDiploma {
   public readonly CLUB_CITY: string
   public readonly CLUB_NAME: string
-  public constructor(clubCity: string, clubName: string) {
-    super(clubCity, clubName)
+  public constructor(options: IGenerateDiplomaOptions) {
+    super(options)
 
-    this.CLUB_CITY = clubCity
-    this.CLUB_NAME = clubName
+    this.CLUB_CITY = options.clubCity
+    this.CLUB_NAME = options.clubName
   }
 }

@@ -1,20 +1,6 @@
-export interface IDiploma {
-  clubName: string
-  firstName: string
-  lastName: string
-  city: string
-  date?: Date
-  type:
-    | 'blanche-jaune'
-    | 'jaune'
-    | 'jaune-orange'
-    | 'orange'
-    | 'orange-vert'
-    | 'vert'
-    | 'vert-bleu'
-    | 'bleu'
-    | 'bleu-marron'
-    | 'marron'
+import { type ILiteDiploma } from './ILiteDiploma'
 
-  group?: string
+export interface IDiploma extends ILiteDiploma {
+  clubName: string
+  city: string
 }

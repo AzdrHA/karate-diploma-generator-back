@@ -7,16 +7,16 @@ import { parse } from 'yaml'
 import { type IBelt } from '../types/IBelt'
 import { slugify } from '../utils/UtilsStr'
 import { type IGenerateDiplomaOptions } from '../types/IGenerateDiplomaOptions'
+import { type ILiteDiploma } from '../types/ILiteDiploma'
+import GenerateDiplomaError from '../error/GenerateDiplomaError'
 
 export default abstract class BaseGenerateDiploma {
   public readonly CLUB_NAME: string
   public readonly CLUB_CITY: string
-
   public readonly options: IGenerateDiplomaOptions
-
   public readonly madeAt: Date
 
-  public constructor(options: IGenerateDiplomaOptions) {
+  protected constructor(options: IGenerateDiplomaOptions) {
     this.CLUB_NAME = options.clubName ?? ''
     this.CLUB_CITY = options.clubCity ?? ''
     this.options = options
@@ -35,34 +35,42 @@ export default abstract class BaseGenerateDiploma {
   )
 
   public generateDiplomas(
-    diplomas: IDiploma[],
-    outputName: string | null = null
+    diplomas: ILiteDiploma[],
+    callback?: (doc: typeof PDFDocument, error?: Error | null) => void
   ): void {
-    const doc = new PDFDocument({ size: 'A1', layout: 'landscape' })
-    doc.pipe(
+    let error: Error | null = null
+    const doc = new PDFDocument({
+      size: 'A1',
+      layout: 'landscape',
+      info: {
+        CreationDate: this.madeAt
+      }
+    })
+    const steam = doc.pipe(
       fs.createWriteStream(
         util.format(
           './output/%s.pdf',
-          outputName ??
-            util.format(
-              '%s-%s-Diplomes-Karate-%s-%s',
-              diplomas.length,
-              slugify(this.CLUB_NAME),
-              slugify(this.madeAt.toLocaleDateString('fr')),
-              this.madeAt.getTime()
-            )
+          util.format(
+            '%s-%s-Diplomes-Karate-%s-%s',
+            diplomas.length,
+            slugify(this.CLUB_NAME),
+            slugify(this.madeAt.toLocaleDateString('fr')),
+            this.madeAt.getTime()
+          )
         )
       )
     )
 
     doc.fontSize(50).font('fonts/BebasNeueRegular.ttf')
 
-    diplomas.forEach((diploma, i) => {
-      diploma = { ...this.baseMember, ...diploma }
+    diplomas.forEach((liteDiploma, i) => {
+      const diploma: IDiploma = { ...this.baseMember, ...liteDiploma }
       const find = this.belts.find((belt) =>
         belt.entry.includes(diploma.type.toLowerCase())
       )
-      if (find == null) return
+      if (find == null) {
+        return (error = new GenerateDiplomaError(diploma.type))
+      }
 
       const image = sizeOf(`./diplomas/${find.name}.png`)
       const { width: imageWidth = 0, height: imageHeight = 0 } = image
@@ -124,5 +132,12 @@ export default abstract class BaseGenerateDiploma {
     })
 
     doc.end()
+
+    steam.on('finish', () => {
+      console.log(
+        util.format('%s diplomas generated in %s', diplomas.length, './output')
+      )
+      if (callback != null) callback(doc, error)
+    })
   }
 }

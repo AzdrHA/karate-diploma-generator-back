@@ -1,6 +1,28 @@
-import VoreppeGenerateDiploma from './script/VoreppeGenerateDiploma'
-import { ISKCVoreppeGroup } from './types/ISKCVoreppeGroup'
+import DefaultGenerateDiploma from './script/DefaultGenerateDiploma'
 
+const defaultGenerateDiploma = new DefaultGenerateDiploma({
+  date: new Date('2/4/2023'),
+  clubName: 'SKC Voreppe',
+  clubCity: 'Voreppe'
+})
+defaultGenerateDiploma.generateDiplomas(
+  [
+    {
+      firstName: 'Ilan',
+      lastName: 'Philipe',
+      type: 'b'
+    }
+  ],
+  (doc, err) => {
+    if (err != null) {
+      console.error(err)
+      return
+    }
+
+    console.log(doc)
+  }
+)
+/*
 const voreppeGenerateDiploma = new VoreppeGenerateDiploma({
   date: new Date('2/4/2023')
 })
@@ -184,3 +206,4 @@ voreppeGenerateDiploma.generateDiplomas([
     type: 'vert'
   }
 ])
+*/
